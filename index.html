@@ -1,63 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cool Website Viewer</title>
   <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #1f1c2c, #928dab);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
+    :root{
+      --bg1:#1f1c2c; --bg2:#928dab;
+      --glass: rgba(255,255,255,.08);
+      --glass-strong: rgba(255,255,255,.12);
+      --text:#e9e9ef;
+      --accent:#7dd3fc;
     }
-    header {
-      text-align: center;
-      padding: 20px;
-      font-size: 2rem;
-      font-weight: bold;
-      background: rgba(0, 0, 0, 0.4);
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+      color: var(--text);
+      background: radial-gradient(1200px 1200px at 20% -10%, #2d2542 0%, transparent 60%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      display:flex; flex-direction:column;
+      overflow:hidden;
+    }
+
+    header{
+      display:flex; align-items:center; gap:12px; justify-content:space-between;
+      padding:14px 18px; backdrop-filter: blur(8px);
+      background: var(--glass);
+      border-bottom: 1px solid var(--glass-strong);
+      box-shadow: 0 4px 20px rgba(0,0,0,.35) inset;
+    }
+    .brand{font-weight:700; letter-spacing:.5px}
+    .controls{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+    .btn{
+      appearance:none; border:none; cursor:pointer; user-select:none;
+      padding:10px 14px; border-radius:12px; font-weight:600;
+      background: var(--glass); color:var(--text);
+      border:1px solid var(--glass-strong);
+      transition: transform .12s ease, box-shadow .2s ease, background .2s ease;
+      box-shadow: 0 8px 18px rgba(0,0,0,.25);
+      white-space:nowrap;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); }
+    .btn:active{ transform: translateY(0); }
+
+    .url-input{
+      display:flex; gap:8px; align-items:center; min-width:320px;
+      background: var(--glass); border:1px solid var(--glass-strong);
+      padding:6px; border-radius:12px;
+    }
+    .url-input input{
+      flex:1; min-width:180px;
+      background:transparent; border:none; outline:none; color:var(--text);
+      padding:8px 10px; font-size:14px;
+    }
+    .url-input .btn{padding:8px 12px;}
+
+    .content{ flex:1; padding:18px; display:flex; }
+    .frame-wrap{
+      flex:1; border-radius:18px; overflow:hidden; position:relative;
+      box-shadow: 0 20px 50px rgba(0,0,0,.45);
+      background: rgba(0,0,0,.25);
+      border:1px solid var(--glass-strong);
+    }
+    iframe{
+      position:absolute; inset:0; width:100%; height:100%; border:0;
+      background:#0b0b10;
+      transition: opacity .25s ease;
+    }
+    footer{
+      text-align:center; padding:10px; font-size:12px;
+      background: var(--glass); border-top:1px solid var(--glass-strong);
       backdrop-filter: blur(6px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      letter-spacing: 2px;
     }
-    .iframe-container {
-      flex-grow: 1;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .note{
+      font-size:12px; opacity:.8; margin-left:8px
     }
-    iframe {
-      width: 90%;
-      height: 90%;
-      border: none;
-      border-radius: 15px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    iframe:hover {
-      transform: scale(1.02);
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.7);
-    }
-    footer {
-      text-align: center;
-      padding: 15px;
-      font-size: 0.9rem;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(6px);
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.3);
+
+    /* Small screens */
+    @media (max-width:680px){
+      .url-input{ min-width:unset; width:100%; }
+      header{ flex-wrap:wrap; gap:10px; }
+      .controls{ width:100%; }
     }
   </style>
 </head>
 <body>
-  <header>🌐 Cool Website Viewer</header>
-  <div class="iframe-container">
-    <iframe src="https://example.com"></iframe>
+  <header>
+    <div class="brand">🌐 Cool Website Viewer</div>
+
+    <div class="controls">
+      <!-- Quick site buttons (use ones that usually allow iframes) -->
+      <button class="btn site" data-url="https://example.com">Example</button>
+      <button class="btn site" data-url="https://neverssl.com/">NeverSSL</button>
+      <button class="btn site" data-url="https://http.cat/">HTTP Cats</button>
+
+      <!-- Custom URL input -->
+      <div class="url-input">
+        <input id="url" type="text" placeholder="https://your-site.com" />
+        <button id="go" class="btn">Open</button>
+      </div>
+      <span class="note">Some sites block embedding; they’ll still open in a new tab.</span>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="frame-wrap">
+      <iframe id="view" src="https://example.com" referrerpolicy="no-referrer"></iframe>
+    </div>
   </div>
+
   <footer>✨ Made with style by Ethan</footer>
+
+  <script>
+    // Helper to normalize URL input
+    function toAbsolute(url){
+      try {
+        // Add protocol if missing
+        if(!/^https?:\/\//i.test(url)) url = "https://" + url;
+        return new URL(url).href;
+      } catch { return null; }
+    }
+
+    // Load inside iframe AND open in about:blank tab
+    function openSite(url){
+      const abs = toAbsolute(url);
+      if(!abs){ alert("Enter a valid URL"); return; }
+
+      // 1) set iframe (may fail to display if site disallows framing)
+      const frame = document.getElementById("view");
+      frame.style.opacity = "0";
+      frame.src = abs;
+      frame.onload = () => { frame.style.opacity = "1"; };
+
+      // 2) open in about:blank then redirect (prevents tab from having access to this page)
+      // Must be within the same user gesture (this function is called from a click)
+      const w = window.open("about:blank", "_blank", "noopener,noreferrer");
+      if (w) {
+        // Safer to assign location after opening about:blank
+        w.opener = null;
+        try { w.location.href = abs; } catch {}
+      } else {
+        // Popup blocked by browser
+        console.warn("Popup was blocked by the browser.");
+      }
+    }
+
+    // Bind preset buttons
+    document.querySelectorAll(".btn.site").forEach(btn=>{
+      btn.addEventListener("click", () => openSite(btn.dataset.url));
+    });
+
+    // Bind custom URL input
+    document.getElementById("go").addEventListener("click", ()=>{
+      const value = document.getElementById("url").value.trim();
+      openSite(value);
+    });
+    document.getElementById("url").addEventListener("keydown", e=>{
+      if(e.key === "Enter") document.getElementById("go").click();
+    });
+  </script>
 </body>
 </html>
